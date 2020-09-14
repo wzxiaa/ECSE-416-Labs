@@ -1,18 +1,44 @@
 import socket
+import sys
 
-serverPort = 12345
-serverName = 'localhost'
+def parser():
+    argv = sys.argv[1:]
+    if len(argv) != 3:
+        print("Invalid number of arguments supplied!")
+        sys.exit(1)
+    servername = argv[0]
+    serverport = int(argv[1])
+    filename = argv[2]
+    return servername, serverport, filename
 
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((serverName, serverPort))
+if __name__ == "__main__":
+    # get the list of arguments except for the filename
+    serverName, serverPort, filename = parser()
+    # print(("{},{},{}").format(serverName, serverPort, filename))
 
-print('The client socket is listening on port: ', clientSocket.getsockname())
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        clientSocket.connect((serverName, serverPort))
+    except socket.error as msg:
+        print("Connection: FAILED")
+        exit(1)
 
-sentence = "HELLO WORLD"
-# Send data to the socket, returns the number of bytes sent. Message integrity has to
-# be checked by the application itself
-clientSocket.send(sentence.encode())
-modifiedSentence = clientSocket.recv(1024)
-print('From Server: ', modifiedSentence.decode())
-clientSocket.close()
+    print("Connection: OK")
 
+    # Send data to the socket, returns the number of bytes sent. Message integrity has to
+    # be checked by the application itself
+    try:
+        clientSocket.send(filename.encode())
+    except socket.error as msg:
+        print("Connection: FAILED")
+        exit(1)
+
+    print("Request message sent.")
+
+    while True:
+        buf = clientSocket.recv(1024)
+        if not buf:
+            break
+        print(buf.decode())
+    print('From Server: ', modifiedSentence.decode())
+    clientSocket.close()

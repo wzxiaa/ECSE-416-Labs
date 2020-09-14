@@ -1,5 +1,5 @@
 import socket
-
+import sys
 serverPort = 12345
 serverName = 'localhost'
 
@@ -21,7 +21,20 @@ while True:
     connectionSocket, addr = serverSocket.accept()
     print('Connected by: ', addr)
     # Receive data from socket. Returns a bytes object representing the data. Need to specifies buffer size in bytes.
-    sentence = connectionSocket.recv(1024).decode()
-    capitalizedSentence = sentence.upper()
-    connectionSocket.send(capitalizedSentence.encode())
+    request = ''
+    counter = 0
+    while True:
+        buffer = connectionSocket.recv(3)
+        print(buffer)
+        if not buffer:
+            print("ssssssssssss")
+            break
+        request += buffer.decode()
+        # print(buffer.decode())
+        print(counter)
+        counter = counter + 1
+    print(request)
+    f = open(request, "r")
+    response = f.read()
+    connectionSocket.send(response.encode())
     connectionSocket.close()
