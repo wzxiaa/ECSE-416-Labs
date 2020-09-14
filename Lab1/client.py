@@ -1,5 +1,7 @@
 import socket
 import sys
+import base64
+from PIL import Image
 
 def parser():
     argv = sys.argv[1:]
@@ -36,9 +38,19 @@ if __name__ == "__main__":
     print("Request message sent.")
 
     while True:
-        buf = clientSocket.recv(1024)
+        buf = clientSocket.recv(409600)
         if not buf:
             break
-        print(buf.decode())
-    print('From Server: ', modifiedSentence.decode())
+
+        if filename.endswith('.txt'):
+            print("from client",buf.decode())
+        elif filename.endswith('.jpg'):
+            result = base64.decodebytes(buf)
+
+            Image.open(result)
+            # image_result = open('decode.jpg', 'wb')
+            # image_result.write(result)
+            # display = open('decode.jpg',"rb")
+            # display.show()
+    # print('From Server: ', modifiedSentence.decode())
     clientSocket.close()
