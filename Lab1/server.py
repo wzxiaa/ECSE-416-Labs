@@ -2,6 +2,8 @@ import socket
 import requests
 import base64
 import sys
+import pickle
+
 from PIL import Image
 serverPort = 12345
 serverName = 'localhost'
@@ -42,23 +44,17 @@ while True:
 
     try:
         if request.endswith('.txt'):
-            f=open(request,"r")
+            f = open(request,"r")
         elif request.endswith('.jpg'):
-            f = open(request,"rb")
-            print("what is in f",f)
-        # print("Server HTTP Response:", )
+            ig = pickle.dumps(open(request,"rb").read())
+
     except OSError as e:
         print("404 Not Found")
-    response = f.read()
-    print(response)
-    # ig= Image.open(f)
-    # ig.show()
-    f.close()
-    print(len(response))
-    # print(response)
+
+    if request.endswith('.txt'):
+        response = f.read()
     if request.endswith('.txt'):
         connectionSocket.send(response.encode())
     elif request.endswith('.jpg'):
-        # connectionSocket.send(base64.b64encode(response))
-        connectionSocket.send(base64.encodebytes(response))
+        connectionSocket.send(ig)
     connectionSocket.close()

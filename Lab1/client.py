@@ -2,6 +2,13 @@ import socket
 import sys
 import base64
 from PIL import Image
+import io
+import pickle
+
+from io import BytesIO
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 
 def parser():
     argv = sys.argv[1:]
@@ -12,6 +19,7 @@ def parser():
     serverport = int(argv[1])
     filename = argv[2]
     return servername, serverport, filename
+
 
 if __name__ == "__main__":
     # get the list of arguments except for the filename
@@ -37,20 +45,18 @@ if __name__ == "__main__":
 
     print("Request message sent.")
 
+    data = b""
     while True:
-        buf = clientSocket.recv(409600)
-        if not buf:
-            break
+        buf = clientSocket.recv(4096)
+        if not buf: break
 
+        data += buf
         if filename.endswith('.txt'):
-            print("from client",buf.decode())
+            print("from client", data.decode())
         elif filename.endswith('.jpg'):
-            result = base64.decodebytes(buf)
+            image_result = open('decode.jpg', 'wb')
+            image_result = pickle.loads(data)
 
-            Image.open(result)
-            # image_result = open('decode.jpg', 'wb')
-            # image_result.write(result)
-            # display = open('decode.jpg',"rb")
-            # display.show()
-    # print('From Server: ', modifiedSentence.decode())
+            plt.imshow(mpimg.imread('decode.jpg'))
+
     clientSocket.close()
