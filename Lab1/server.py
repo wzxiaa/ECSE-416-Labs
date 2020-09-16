@@ -41,55 +41,43 @@ class Server():
         return msg_length
 #
     def send_response(self, conn, file_name):
-        full_response = {}
         if path.exists(file_name):
             http_status = 200
-            full_response["status"] = http_status
             http_status_str = str(http_status) + " OK"
             if file_name.endswith(".txt"):
                 file_extension = "txt"
-                full_response["ext"] = file_extension
                 http_header = ("Server HTTP Response: HTTP/1.1 {}\nContent-type: {}/html\n\n").format(http_status_str, file_extension)
                 file = open(file_name, mode='r')
-                file_content = file.read()
-                full_response["header"] = http_header
-                full_response["response"] = file_content
-                pkl_response = pickle.dumps(full_response)
-                response_length = len(pkl_response)
-                send_length = str(response_length).encode()
-                send_length += b' '*(self.headerSize - len(send_length))
-                conn.send(send_length)
-                conn.send(pkl_response)
+                http_content = file.read()
+                self.send(conn, http_status, http_header, http_content, file_extension)
 
             elif file_name.endswith(".jpg"):
                 file_extension = "jpg"
-                full_response["ext"] = file_extension
                 http_header = ("Server HTTP Response: HTTP/1.1 {}\nContent-type: {}/image\n\n").format(http_status_str, file_extension)
                 img = Image.open(file_name)
-                img_arr = np.asarray(img)
-                full_response["header"] = http_header
-                full_response["response"] = img_arr
-                pkl_response = pickle.dumps(full_response)
-                response_length = len(pkl_response)
-                send_length = str(response_length).encode()
-                send_length += b' '*(self.headerSize - len(send_length))
-                conn.send(send_length)
-                conn.send(pkl_response)
+                http_content = np.asarray(img)
+                self.send(conn, http_status, http_header, http_content, file_extension)
         else:
             http_status = 404
-            full_response["status"] = http_status
-            full_response["ext"] = "None"
+            file_extension = "invalid"
             http_status_str = str(http_status) + " not found"
             http_header = ("Server HTTP Response: HTTP/1.1 {}\n\n").format(http_status_str)
-            response = "404 Not Found"
-            full_response["header"] = http_header
-            full_response["response"] = response
-            pkl_response = pickle.dumps(full_response)
-            response_length = len(pkl_response)
-            send_length = str(response_length).encode()
-            send_length += b' ' * (self.headerSize - len(send_length))
-            conn.send(send_length)
-            conn.send(pkl_response)
+            http_content = "404 Not Found"
+            self.send(conn, http_status, http_header, http_content, file_extension)
+
+    def send(self, conn, http_status, http_header, http_content, file_extension):
+        full_response = {}
+        full_response["ext"] = file_extension
+        full_response["status"] = http_status
+        full_response["header"] = http_header
+        full_response["response"] = http_content
+        pkl_response = pickle.dumps(full_response)
+        response_length = len(pkl_response)
+        send_length = str(response_length).encode()
+        send_length += b' ' * (self.headerSize - len(send_length))
+        conn.send(send_length)
+        conn.send(pkl_response)
+
 
 
 if __name__ == "__main__":
