@@ -88,7 +88,7 @@ class Server():
 
 if __name__ == "__main__":
 
-    serverPort = 12345
+    serverPort = 12346
     serverName = 'localhost'
 
     server = Server()

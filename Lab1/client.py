@@ -7,13 +7,15 @@ import time
 
 def parser():
     argv = sys.argv[1:]
-    if len(argv) != 4:
+    if len(argv) != 3:
         print("Invalid number of arguments supplied!")
         sys.exit(1)
     servername = argv[0]
     serverport = int(argv[1])
     filename = argv[2]
-    timeout = int(argv[3])
+    if(len(argv)==4):
+        timeout = int(argv[3])
+    else: timeout = 5
     return servername, serverport, filename, timeout
 
 class Client():
