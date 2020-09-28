@@ -54,6 +54,7 @@ class Client():
                 elif full_response["ext"] == "jpg":
                     plt.imshow(full_response["response"])
                     plt.show()
+
             else:
                 print(full_response["response"])
 
