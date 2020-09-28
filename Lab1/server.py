@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import math
 from os import path
+import time
 
 class Server():
     def __init__(self, headerSize=64, bufferSize=4096):
@@ -19,8 +20,12 @@ class Server():
             # socket.accept(): accept a connection; conn is a new socket object usable to send and receive data
             # addr is the address bounded to the socket on the other end of the connection
             self.serverSocket.listen(1)
-            connectionSocket, addr = self.serverSocket.accept()
-            self.handle_client(connectionSocket)
+            try:
+                connectionSocket, addr = self.serverSocket.accept()
+                print("Connected by ", addr)
+                self.handle_client(connectionSocket)
+            except socket.error as err:
+                print("Connection failed")
             connectionSocket.close()
 
     def handle_client(self, conn):
@@ -41,6 +46,7 @@ class Server():
         return msg_length
 #
     def send_response(self, conn, file_name):
+        # time.sleep(6)
         if path.exists(file_name):
             http_status = 200
             http_status_str = str(http_status) + " OK"
@@ -82,7 +88,7 @@ class Server():
 
 if __name__ == "__main__":
 
-    serverPort = 12346
+    serverPort = 12345
     serverName = 'localhost'
 
     server = Server()
